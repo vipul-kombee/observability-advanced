@@ -1,0 +1,9 @@
+service_name: demo-app
+
+discovery:
+  services:
+    - exe_path: node
+
+exporters:
+  otlp:
+    endpoint: http://alloy:4317

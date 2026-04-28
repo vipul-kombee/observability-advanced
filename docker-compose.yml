@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+  api:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./api:/app
+    command: sh -c "npm init -y && npm install express && node app.js"
+    ports:
+      - "3000:3000"
+
+  auth:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./auth:/app
+    command: sh -c "npm init -y && npm install express && node app.js"
+    ports:
+      - "3001:3001"
+
+  frontend:
+    image: nginx
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3005:3000"
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki.yml
+    volumes:
+      - ./loki.yml:/etc/loki.yml
+
+  tempo:
+    image: grafana/tempo:latest
+    command: -config.file=/etc/tempo.yml
+    volumes:
+      - ./tempo.yml:/etc/tempo.yml
+
+  pyroscope:
+    image: grafana/pyroscope:latest
+    ports:
+      - "4040:4040"
+
+  mimir:
+    image: grafana/mimir:latest
+    command: -config.file=/etc/mimir.yml
+    volumes:
+      - ./mimir.yml:/etc/mimir.yml
+
+  alloy:
+    image: grafana/alloy:latest
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+    command: run /etc/alloy/config.alloy
+
+  beyla:
+    image: grafana/beyla:latest
+    privileged: true
+    volumes:
+      - ./beyla/config.yaml:/config.yaml
+    command: -config=/config.yaml
+
+  k6:
+    image: grafana/k6
+    volumes:
+      - ./k6:/scripts

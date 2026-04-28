@@ -1,0 +1,29 @@
+logging {
+  level = "info"
+}
+
+prometheus.scrape "default" {
+  targets = [
+    { __address__ = "api:3000" },
+    { __address__ = "auth:3001" }
+  ]
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+tempo.write "default" {
+  endpoint {
+    url = "http://tempo:3200"
+  }
+}
